@@ -169,29 +169,24 @@ class _OptionScreenState extends State<OptionScreen> {
                       color: Theme.of(context).colorScheme.onBackground)),
             ),
           ),
-          InkWell(
-            onTap: () {},
-            child: Ink(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                child: ListTile(
-                  title: Text(AppLocalizations.of(context)!.language),
-                  trailing: DropdownButton(
-                    icon: Iconify(
-                      Ci.chevron_down,
-                      color: Theme.of(context).colorScheme.onBackground,
-                    ),
-                    underline: const SizedBox(),
-                    value: _selectedLocale,
-                    onChanged: (value) => _setLocale(context, value as Locale),
-                    items: [
-                      for (var locale in _supportedLocales)
-                        DropdownMenuItem(
-                          value: locale,
-                          child: Text(_localeToString(locale)),
-                        )
-                    ],
-                  ),
-                )),
+          ListTile(
+            title: Text(AppLocalizations.of(context)!.language),
+            trailing: DropdownButton(
+              icon: Iconify(
+                Ci.chevron_down,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
+              underline: const SizedBox(),
+              value: _selectedLocale,
+              onChanged: (value) => _setLocale(context, value as Locale),
+              items: [
+                for (var locale in _supportedLocales)
+                  DropdownMenuItem(
+                    value: locale,
+                    child: Text(_localeToString(locale)),
+                  )
+              ],
+            ),
           ),
         ],
       ),

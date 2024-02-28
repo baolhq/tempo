@@ -36,7 +36,7 @@ class _ClockScreenState extends State<ClockScreen> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       var prefs = await Prefs.loadPrefs();
