@@ -13,6 +13,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:math' as math;
 
 import 'package:tempo/screens/theme_picker_screen.dart';
+import 'package:tempo/utils/prefs.dart';
 import 'package:tempo/utils/themes.dart';
 
 class ClockScreen extends StatefulWidget {
@@ -38,7 +39,12 @@ class _ClockScreenState extends State<ClockScreen> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _loadPrefs();
+      var prefs = await Prefs.loadPrefs();
+
+      setState(() {
+        _prefs = prefs;
+      });
+
       _loadPalette();
     });
 
@@ -51,11 +57,6 @@ class _ClockScreenState extends State<ClockScreen> {
   void dispose() {
     _timer.cancel();
     super.dispose();
-  }
-
-  Future<bool> _loadPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
-    return true;
   }
 
   void _loadPalette() {
@@ -141,11 +142,17 @@ class _ClockScreenState extends State<ClockScreen> {
                           color: textColor,
                           fontFamily: GoogleFonts.poppins().fontFamily),
                     ),
-                    if ((_isClockPaused && isShowText) || _isClockResetted)
-                      Text(
+                    AnimatedOpacity(
+                      opacity:
+                          ((_isClockPaused && isShowText) || _isClockResetted)
+                              ? 1
+                              : 0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Text(
                         AppLocalizations.of(context)!.tapToStart,
                         style: TextStyle(fontSize: 16, color: textColor),
-                      )
+                      ),
+                    )
                   ]),
             ),
           ),
@@ -163,7 +170,7 @@ class _ClockScreenState extends State<ClockScreen> {
           borderRadius: BorderRadius.circular(128),
           child: Ink(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(128),
+              shape: BoxShape.circle,
               color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
             ),
             child: Padding(
@@ -174,6 +181,35 @@ class _ClockScreenState extends State<ClockScreen> {
                       color: Theme.of(context).scaffoldBackgroundColor,
                       borderRadius: BorderRadius.circular(64)),
                   child: icon),
+            ),
+          ),
+        ));
+  }
+
+  Widget _buildPausedButton(double x, double y, Iconify icon, Function onTap) {
+    return Positioned(
+        top: y,
+        left: x,
+        child: AnimatedOpacity(
+          opacity: _isClockPaused ? 0 : 1,
+          duration: const Duration(milliseconds: 200),
+          child: InkWell(
+            onTap: () => onTap(),
+            borderRadius: BorderRadius.circular(128),
+            child: Ink(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(128),
+                color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        borderRadius: BorderRadius.circular(64)),
+                    child: icon),
+              ),
             ),
           ),
         ));
@@ -228,6 +264,17 @@ class _ClockScreenState extends State<ClockScreen> {
                 color: Theme.of(context).colorScheme.onBackground,
               ),
               () => _navigate(const OptionScreen())),
+          _buildPausedButton(
+              screenW / 2 - buttonRadius,
+              screenH / 2 - buttonRadius,
+              Iconify(
+                Ci.pause_circle_outline,
+                color: Theme.of(context).colorScheme.onBackground,
+              ), () {
+            setState(() {
+              _isClockPaused = true;
+            });
+          }),
           _buildButton(
               screenW / 1.4 - buttonRadius,
               screenH / 2 - buttonRadius,

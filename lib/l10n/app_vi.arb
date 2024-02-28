@@ -6,5 +6,8 @@
   "options": "Tuỳ chọn",
   "useDarkTheme": "Giao diện tối",
   "useSystemTheme": "Giao diện hệ thống",
-  "feedback": "Phản hồi"
+  "feedback": "Phản hồi",
+  "language": "Ngôn ngữ",
+  "becomeAMember": "Trở thành thành viên",
+  "memberSubtitle": "Loại bỏ quảng cáo, mở khoá các tính năng trả phí ngay!"
 }

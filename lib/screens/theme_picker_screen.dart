@@ -7,6 +7,7 @@ import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ci.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tempo/models/palette.dart';
+import 'package:tempo/utils/prefs.dart';
 import 'package:tempo/utils/themes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:math' as math;
@@ -30,14 +31,14 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
         overlays: [SystemUiOverlay.top]);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _loadPrefs();
+      var prefs = await Prefs.loadPrefs();
+
+      setState(() {
+        _prefs = prefs;
+      });
+
       _loadPalette();
     });
-  }
-
-  Future<bool> _loadPrefs() async {
-    _prefs = await SharedPreferences.getInstance();
-    return true;
   }
 
   void _loadPalette() {
@@ -107,53 +108,48 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
         },
         borderRadius: BorderRadius.circular(128),
         child: Ink(
-          decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onBackground,
-              shape: BoxShape.circle),
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            child: SizedBox(
-              width: 64,
-              height: 64,
-              child: Stack(children: [
-                Column(
-                  children: [
-                    Expanded(
-                        child: Container(
-                      decoration: BoxDecoration(
-                          color: palette.topBgColor,
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(128),
-                              topRight: Radius.circular(128))),
-                    )),
-                    Expanded(
-                        child: Container(
-                      decoration: BoxDecoration(
-                          color: palette.bottomBgColor,
-                          borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(128),
-                              bottomRight: Radius.circular(128))),
-                    )),
-                  ],
-                ),
-                if (_palette.topBgColor == palette.topBgColor)
-                  Positioned(
-                      top: 16,
-                      left: 16,
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          child: SizedBox(
+            width: 64,
+            height: 64,
+            child: Stack(children: [
+              Column(
+                children: [
+                  Expanded(
                       child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .scaffoldBackgroundColor
-                                  .withAlpha(220),
-                              shape: BoxShape.circle),
-                          child: Iconify(
-                            Ci.check,
-                            color: Theme.of(context).colorScheme.onBackground,
-                          )))
-              ]),
-            ),
+                    decoration: BoxDecoration(
+                        color: palette.topBgColor,
+                        borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(128),
+                            topRight: Radius.circular(128))),
+                  )),
+                  Expanded(
+                      child: Container(
+                    decoration: BoxDecoration(
+                        color: palette.bottomBgColor,
+                        borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(128),
+                            bottomRight: Radius.circular(128))),
+                  )),
+                ],
+              ),
+              if (_palette.topBgColor == palette.topBgColor)
+                Positioned(
+                    top: 16,
+                    left: 16,
+                    child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .scaffoldBackgroundColor
+                                .withAlpha(220),
+                            shape: BoxShape.circle),
+                        child: Iconify(
+                          Ci.check,
+                          color: Theme.of(context).colorScheme.onBackground,
+                        )))
+            ]),
           ),
         ),
       ),
@@ -209,7 +205,7 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
       ),
       body: Column(children: [
         Container(
-          margin: const EdgeInsets.only(top: 48, bottom: 64),
+          margin: const EdgeInsets.symmetric(vertical: 48),
           width: double.infinity,
           height: 280,
           child: Center(
@@ -241,7 +237,7 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
           ],
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 24),
+          padding: const EdgeInsets.only(top: 8, bottom: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -250,6 +246,70 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
               _buildThemeTile(Themes.coralSky),
             ],
           ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: GestureDetector(
+                onTap: () {},
+                child: SizedBox(
+                  height: 64,
+                  width: 180,
+                  child: Column(
+                    children: [
+                      Expanded(
+                          child: Container(
+                        decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(16),
+                                topRight: Radius.circular(16)),
+                            gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFF8E7AB5),
+                                  Color(0xFFEEA5A6)
+                                ])),
+                      )),
+                      Expanded(
+                          child: Container(
+                        decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(16),
+                                bottomRight: Radius.circular(16)),
+                            gradient: LinearGradient(
+                                begin: Alignment.bottomRight,
+                                end: Alignment.topLeft,
+                                colors: [
+                                  Color(0xFFEC8F5E),
+                                  Color(0xFFF3B664)
+                                ])),
+                      ))
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            InkWell(
+              onTap: () {},
+              borderRadius: BorderRadius.circular(16),
+              child: Ink(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: _palette.topBgColor,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Iconify(
+                    Ci.sketch,
+                    color: _palette.topTextColor,
+                  ),
+                ),
+              ),
+            )
+          ],
         ),
         Expanded(
           child: Stack(

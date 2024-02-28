@@ -6,5 +6,8 @@
   "options": "Options",
   "useDarkTheme": "Use dark theme",
   "useSystemTheme": "Use system theme",
-  "feedback": "Feedback"
+  "feedback": "Feedback",
+  "language": "Language",
+  "becomeAMember": "Become a member",
+  "memberSubtitle": "Remove ads, get your exclusive features now!"
 }
