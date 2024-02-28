@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "apply": "APPLY",
+  "tapToStart": "Tap to start",
+  "themes": "Themes",
+  "options": "Options",
+  "useDarkTheme": "Use dark theme",
+  "useSystemTheme": "Use system theme",
+  "feedback": "Feedback"
+}

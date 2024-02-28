@@ -1,0 +1,34 @@
+name: tempo
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.0.1+1
+
+environment:
+  sdk: ">=3.2.6 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  iconify_flutter: ^0.0.5
+  shared_preferences: ^2.2.2
+  adaptive_theme: ^3.6.0
+  intl: ^0.18.1
+  google_fonts: ^6.1.0
+  flutter_multi_formatter: ^2.12.4
+
+dev_dependencies:
+  flutter_lints: ^3.0.1
+  flutter_launcher_icons: "^0.13.1"
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/images/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  image_path: "assets/images/icon.png"
