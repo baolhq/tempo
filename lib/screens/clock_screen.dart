@@ -3,14 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ci.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tempo/components/clock_button.dart';
+import 'package:tempo/components/clock_tapper.dart';
 import 'package:tempo/models/palette.dart';
+import 'package:tempo/models/timer_option.dart';
 import 'package:tempo/screens/option_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'dart:math' as math;
 
 import 'package:tempo/screens/theme_picker_screen.dart';
 import 'package:tempo/utils/prefs.dart';
@@ -24,13 +24,19 @@ class ClockScreen extends StatefulWidget {
 }
 
 class _ClockScreenState extends State<ClockScreen> {
-  var _timerTop = const Duration(minutes: 5);
-  var _timerBottom = const Duration(minutes: 5);
+  var _initialTime = 5;
+  var _bonusTime = 0;
   var _palette = Themes.blackPink;
   var _isClockResetted = true;
   var _isClockPaused = true;
   var _playerTurn = -1;
   late Timer _timer;
+  TimerOption _durationTop = TimerOption(
+      initialTime: const Duration(minutes: 5),
+      bonusTime: const Duration(seconds: 0));
+  TimerOption _durationBottom = TimerOption(
+      initialTime: const Duration(minutes: 5),
+      bonusTime: const Duration(seconds: 0));
   SharedPreferences? _prefs;
 
   @override
@@ -46,6 +52,7 @@ class _ClockScreenState extends State<ClockScreen> {
       });
 
       _loadPalette();
+      _loadTimerOption();
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -57,6 +64,49 @@ class _ClockScreenState extends State<ClockScreen> {
   void dispose() {
     _timer.cancel();
     super.dispose();
+  }
+
+  void _countDown() {
+    if (!_isClockPaused) {
+      if (_playerTurn == 1) {
+        setState(() {
+          _durationTop.initialTime -= const Duration(seconds: 1);
+        });
+      } else {
+        setState(() {
+          _durationBottom.initialTime -= const Duration(seconds: 1);
+        });
+      }
+    }
+  }
+
+  void _tapperClicked(bool isShowText, bool isTop) {
+    if (isShowText || !_isClockPaused) {
+      if (!_timer.isActive) {
+        setState(() {
+          _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+            _countDown();
+          });
+        });
+      }
+
+      if (isTop) {
+        setState(() {
+          _playerTurn = 0;
+          _durationTop.initialTime += _durationTop.bonusTime;
+        });
+      } else {
+        setState(() {
+          _playerTurn = 1;
+          _durationBottom.initialTime += _durationBottom.bonusTime;
+        });
+      }
+
+      setState(() {
+        _isClockResetted = false;
+        _isClockPaused = false;
+      });
+    }
   }
 
   void _loadPalette() {
@@ -71,150 +121,6 @@ class _ClockScreenState extends State<ClockScreen> {
     }
   }
 
-  void _countDown() {
-    if (!_isClockPaused) {
-      if (_playerTurn == 1) {
-        setState(() {
-          _timerTop -= const Duration(seconds: 1);
-        });
-      } else {
-        setState(() {
-          _timerBottom -= const Duration(seconds: 1);
-        });
-      }
-    }
-  }
-
-  Widget _buildTapper(
-      {Color bgColor = Colors.black,
-      Color textColor = Colors.white,
-      Duration duration = const Duration(minutes: 5),
-      bool isTop = false,
-      bool isShowText = false,
-      bool isClickable = false}) {
-    var minute = duration.inMinutes;
-    var sec = duration.inSeconds % 60;
-    var minuteStr = minute.toString().padLeft(2, '0');
-    var secStr = sec.toString().padLeft(2, '0');
-
-    return Expanded(
-      child: InkWell(
-        onTap: () {
-          if (!isShowText && _isClockPaused) {
-          } else {
-            if (!_timer.isActive) {
-              setState(() {
-                _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-                  _countDown();
-                });
-              });
-            }
-
-            if (isTop) {
-              setState(() {
-                _playerTurn = 0;
-              });
-            } else {
-              setState(() {
-                _playerTurn = 1;
-              });
-            }
-
-            setState(() {
-              _isClockResetted = false;
-              _isClockPaused = false;
-            });
-          }
-        },
-        child: Ink(
-          color: bgColor,
-          child: Container(
-            alignment: Alignment.center,
-            child: Transform.rotate(
-              angle: isTop ? math.pi : 0,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "$minuteStr:$secStr",
-                      style: TextStyle(
-                          fontSize: 64,
-                          color: textColor,
-                          fontFamily: GoogleFonts.poppins().fontFamily),
-                    ),
-                    AnimatedOpacity(
-                      opacity:
-                          ((_isClockPaused && isShowText) || _isClockResetted)
-                              ? 1
-                              : 0,
-                      duration: const Duration(milliseconds: 200),
-                      child: Text(
-                        AppLocalizations.of(context)!.tapToStart,
-                        style: TextStyle(fontSize: 16, color: textColor),
-                      ),
-                    )
-                  ]),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildButton(double x, double y, Iconify icon, Function onTap) {
-    return Positioned(
-        top: y,
-        left: x,
-        child: InkWell(
-          onTap: () => onTap(),
-          borderRadius: BorderRadius.circular(128),
-          child: Ink(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      borderRadius: BorderRadius.circular(64)),
-                  child: icon),
-            ),
-          ),
-        ));
-  }
-
-  Widget _buildPausedButton(double x, double y, Iconify icon, Function onTap) {
-    return Positioned(
-        top: y,
-        left: x,
-        child: AnimatedOpacity(
-          opacity: _isClockPaused ? 0 : 1,
-          duration: const Duration(milliseconds: 200),
-          child: InkWell(
-            onTap: () => onTap(),
-            borderRadius: BorderRadius.circular(128),
-            child: Ink(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(128),
-                color: Theme.of(context).scaffoldBackgroundColor.withAlpha(100),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        borderRadius: BorderRadius.circular(64)),
-                    child: icon),
-              ),
-            ),
-          ),
-        ));
-  }
-
   void _navigate(dynamic screen) async {
     setState(() {
       _isClockPaused = true;
@@ -223,7 +129,47 @@ class _ClockScreenState extends State<ClockScreen> {
     await Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => screen));
     _loadPalette();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  }
+
+  void _pauseButtonPressed() {
+    if (_isClockPaused) {
+      _resetTimer();
+    } else {
+      setState(() {
+        _isClockPaused = true;
+      });
+    }
+  }
+
+  void _resetTimer() {
+    setState(() {
+      _isClockResetted = true;
+      _isClockPaused = true;
+      _playerTurn = -1;
+    });
+    _loadTimerOption();
+
+    _timer.cancel();
+  }
+
+  void _loadTimerOption() {
+    var initialTime = _prefs?.getInt("initialTime");
+    var bonusTime = _prefs?.getInt("bonusTime");
+
+    if (initialTime != null && bonusTime != null) {
+      setState(() {
+        _initialTime = initialTime;
+        _bonusTime = bonusTime;
+
+        _durationTop = TimerOption(
+            initialTime: Duration(minutes: _initialTime),
+            bonusTime: Duration(seconds: _bonusTime));
+        _durationBottom = TimerOption(
+            initialTime: Duration(minutes: _initialTime),
+            bonusTime: Duration(seconds: _bonusTime));
+      });
+    }
   }
 
   @override
@@ -237,52 +183,65 @@ class _ClockScreenState extends State<ClockScreen> {
         children: [
           Column(
             children: [
-              _buildTapper(
-                  bgColor: _palette.topBgColor,
-                  textColor: _palette.topTextColor,
-                  duration: _timerTop,
-                  isTop: true,
-                  isShowText: _playerTurn == -1 || _playerTurn == 1,
-                  isClickable: (_playerTurn == 0 && _isClockPaused) ||
-                      _playerTurn == 1 ||
-                      _isClockResetted),
-              _buildTapper(
-                  bgColor: _palette.bottomBgColor,
-                  textColor: _palette.bottomTextColor,
-                  duration: _timerBottom,
-                  isShowText: _playerTurn == -1 || _playerTurn == 0,
-                  isClickable: (_playerTurn == 1 && _isClockPaused) ||
-                      _playerTurn == 0 ||
-                      _isClockResetted),
+              ClockTapper(
+                bgColor: _palette.topBgColor,
+                textColor: _palette.topTextColor,
+                durationTop: _durationTop,
+                durationBottom: _durationBottom,
+                isTop: true,
+                isClockPaused: _isClockPaused,
+                isClockResetted: _isClockResetted,
+                timer: _timer,
+                timerOption: _durationTop.toString(),
+                playerTurn: _playerTurn,
+                isShowText: _playerTurn == -1 || _playerTurn == 1,
+                callback: (isShowText, isTop) =>
+                    _tapperClicked(isShowText, isTop),
+              ),
+              ClockTapper(
+                bgColor: _palette.bottomBgColor,
+                textColor: _palette.bottomTextColor,
+                durationTop: _durationTop,
+                durationBottom: _durationBottom,
+                isClockPaused: _isClockPaused,
+                isClockResetted: _isClockResetted,
+                timer: _timer,
+                timerOption: _durationBottom.toString(),
+                playerTurn: _playerTurn,
+                isShowText: _playerTurn == -1 || _playerTurn == 0,
+                callback: (isShowText, isTop) =>
+                    _tapperClicked(isShowText, isTop),
+              ),
             ],
           ),
-          _buildButton(
-              screenW / 4 - buttonRadius,
-              screenH / 2 - buttonRadius,
-              Iconify(
+          ClockButton(
+              x: screenW / 4 - buttonRadius,
+              y: screenH / 2 - buttonRadius,
+              icon: Iconify(
                 Ci.settings,
                 color: Theme.of(context).colorScheme.onBackground,
               ),
-              () => _navigate(const OptionScreen())),
-          _buildPausedButton(
-              screenW / 2 - buttonRadius,
-              screenH / 2 - buttonRadius,
-              Iconify(
-                Ci.pause_circle_outline,
+              isClockPaused: _isClockPaused,
+              callback: () => _navigate(const OptionScreen())),
+          ClockButton(
+              x: screenW / 2 - buttonRadius,
+              y: screenH / 2 - buttonRadius,
+              icon: Iconify(
+                _isClockPaused ? Ci.redo : Ci.pause_circle_outline,
                 color: Theme.of(context).colorScheme.onBackground,
-              ), () {
-            setState(() {
-              _isClockPaused = true;
-            });
-          }),
-          _buildButton(
-              screenW / 1.4 - buttonRadius,
-              screenH / 2 - buttonRadius,
-              Iconify(
+              ),
+              isClockPaused: _isClockPaused,
+              isPauseButton: true,
+              callback: () => _pauseButtonPressed()),
+          ClockButton(
+              x: screenW / 1.4 - buttonRadius,
+              y: screenH / 2 - buttonRadius,
+              icon: Iconify(
                 Ci.color,
                 color: Theme.of(context).colorScheme.onBackground,
               ),
-              () => _navigate(const ThemePickerScreen())),
+              isClockPaused: _isClockPaused,
+              callback: () => _navigate(const ThemePickerScreen()))
         ],
       ),
     );

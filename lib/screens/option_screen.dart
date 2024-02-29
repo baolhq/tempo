@@ -20,12 +20,16 @@ class OptionScreen extends StatefulWidget {
 class _OptionScreenState extends State<OptionScreen> {
   var _isDarkTheme = false;
   var _isSystemTheme = false;
-  var _selectedLocale = const Locale("en", "US");
   SharedPreferences? _prefs;
+
+  var _selectedLocale = const Locale("en", "US");
   final _supportedLocales = [
     const Locale("en", "US"),
     const Locale("vi", "VN")
   ];
+
+  int _initialTime = 5;
+  int _bonusTime = 0;
 
   @override
   void initState() {
@@ -44,6 +48,7 @@ class _OptionScreenState extends State<OptionScreen> {
       });
 
       _loadLanguague();
+      _loadTimerOption();
     });
   }
 
@@ -64,6 +69,43 @@ class _OptionScreenState extends State<OptionScreen> {
           break;
       }
     }
+  }
+
+  void _loadTimerOption() {
+    var initialTime = _prefs?.getInt("initialTime");
+    var bonusTime = _prefs?.getInt("bonusTime");
+
+    if (initialTime != null && bonusTime != null) {
+      setState(() {
+        _initialTime = initialTime;
+        _bonusTime = bonusTime;
+      });
+    }
+  }
+
+  void _saveTimerOption(String initialTimeStr, String bonusTimeStr) async {
+    int initialTime;
+    int bonusTime;
+
+    if (initialTimeStr.isEmpty || initialTimeStr == '0') {
+      initialTime = 1;
+    } else {
+      initialTime = int.parse(initialTimeStr);
+    }
+
+    if (bonusTimeStr.isEmpty) {
+      bonusTime = 0;
+    } else {
+      bonusTime = int.parse(bonusTimeStr);
+    }
+
+    setState(() {
+      _initialTime = initialTime;
+      _bonusTime = bonusTime;
+    });
+
+    await _prefs?.setInt("initialTime", initialTime);
+    await _prefs?.setInt("bonusTime", bonusTime);
   }
 
   void _saveLanguage() async {
@@ -159,6 +201,42 @@ class _OptionScreenState extends State<OptionScreen> {
               value: _isSystemTheme,
             ),
           ),
+          const Divider(),
+          ListTile(
+            title: const Text("Initial timer"),
+            trailing: SizedBox(
+              width: 24,
+              child: TextFormField(
+                key: Key(_initialTime.toString()),
+                initialValue: _initialTime.toString(),
+                onChanged: (value) =>
+                    _saveTimerOption(value, _bonusTime.toString()),
+                textAlign: TextAlign.end,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                maxLength: 2,
+                decoration: const InputDecoration(counterText: ""),
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text("Bonus time"),
+            trailing: SizedBox(
+              width: 24,
+              child: TextFormField(
+                key: Key(_bonusTime.toString()),
+                initialValue: _bonusTime.toString(),
+                onChanged: (value) =>
+                    _saveTimerOption(_initialTime.toString(), value),
+                textAlign: TextAlign.end,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                maxLength: 2,
+                decoration: const InputDecoration(counterText: ""),
+              ),
+            ),
+          ),
+          const Divider(),
           InkWell(
             onTap: () {},
             child: Ink(
