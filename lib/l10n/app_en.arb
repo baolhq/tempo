@@ -9,5 +9,7 @@
   "feedback": "Feedback",
   "language": "Language",
   "becomeAMember": "Become a member",
-  "memberSubtitle": "Remove ads, get your exclusive features now!"
+  "memberSubtitle": "Remove ads, get your exclusive features now!",
+  "initialTimer": "Initial timer (minutes)",
+  "bonusTime": "Bonus time (seconds)"
 }

@@ -67,16 +67,21 @@ class _ClockScreenState extends State<ClockScreen> {
   }
 
   void _countDown() {
-    if (!_isClockPaused) {
-      if (_playerTurn == 1) {
-        setState(() {
-          _durationTop.initialTime -= const Duration(seconds: 1);
-        });
-      } else {
-        setState(() {
-          _durationBottom.initialTime -= const Duration(seconds: 1);
-        });
+    if (_durationTop.initialTime > Duration.zero &&
+        _durationBottom.initialTime > Duration.zero) {
+      if (!_isClockPaused) {
+        if (_playerTurn == 1) {
+          setState(() {
+            _durationTop.initialTime -= const Duration(seconds: 1);
+          });
+        } else {
+          setState(() {
+            _durationBottom.initialTime -= const Duration(seconds: 1);
+          });
+        }
       }
+    } else {
+      _timer.cancel();
     }
   }
 

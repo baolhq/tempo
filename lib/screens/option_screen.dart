@@ -203,7 +203,7 @@ class _OptionScreenState extends State<OptionScreen> {
           ),
           const Divider(),
           ListTile(
-            title: const Text("Initial timer"),
+            title: Text(AppLocalizations.of(context)!.initialTimer),
             trailing: SizedBox(
               width: 24,
               child: TextFormField(
@@ -220,7 +220,7 @@ class _OptionScreenState extends State<OptionScreen> {
             ),
           ),
           ListTile(
-            title: const Text("Bonus time"),
+            title: Text(AppLocalizations.of(context)!.bonusTime),
             trailing: SizedBox(
               width: 24,
               child: TextFormField(

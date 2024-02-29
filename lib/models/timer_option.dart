@@ -4,6 +4,7 @@ class TimerOption {
 
   TimerOption({required this.initialTime, required this.bonusTime});
 
+  @override
   String toString() {
     return "${initialTime.inMinutes} + ${bonusTime.inMinutes}";
   }

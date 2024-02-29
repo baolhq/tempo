@@ -9,5 +9,7 @@
   "feedback": "Phản hồi",
   "language": "Ngôn ngữ",
   "becomeAMember": "Trở thành thành viên",
-  "memberSubtitle": "Loại bỏ quảng cáo, mở khoá các tính năng trả phí ngay!"
+  "memberSubtitle": "Loại bỏ quảng cáo, mở khoá các tính năng trả phí ngay!",
+  "initialTimer": "Thời gian gốc (phút)",
+  "bonusTime": "Thời gian thưởng (giây)"
 }
