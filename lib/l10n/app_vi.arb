@@ -11,5 +11,7 @@
   "becomeAMember": "Trở thành thành viên",
   "memberSubtitle": "Loại bỏ quảng cáo, mở khoá các tính năng trả phí ngay!",
   "initialTimer": "Thời gian gốc (phút)",
-  "bonusTime": "Thời gian thưởng (giây)"
+  "bonusTime": "Thời gian thưởng (giây)",
+  "themeApplied": "Đã áp dụng",
+  "underConstruction": "Tính năng này đang được xây dựng"
 }

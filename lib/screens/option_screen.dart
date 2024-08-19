@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tempo/components/membership.dart';
 
 import 'package:tempo/main.dart';
+import 'package:tempo/utils/core.dart';
 import 'package:tempo/utils/prefs.dart';
 
 class OptionScreen extends StatefulWidget {
@@ -75,6 +76,8 @@ class _OptionScreenState extends State<OptionScreen> {
     var initialTime = _prefs?.getInt("initialTime");
     var bonusTime = _prefs?.getInt("bonusTime");
 
+    debugPrint("$initialTime --- $bonusTime");
+
     if (initialTime != null && bonusTime != null) {
       setState(() {
         _initialTime = initialTime;
@@ -94,6 +97,8 @@ class _OptionScreenState extends State<OptionScreen> {
     }
 
     if (bonusTimeStr.isEmpty) {
+      bonusTime = 0;
+    } else if (int.parse(bonusTimeStr) >= 60) {
       bonusTime = 0;
     } else {
       bonusTime = int.parse(bonusTimeStr);
@@ -176,7 +181,7 @@ class _OptionScreenState extends State<OptionScreen> {
             onPressed: () => Navigator.of(context).pop(),
             icon: Iconify(
               Ci.chevron_left,
-              color: Theme.of(context).colorScheme.onBackground,
+              color: Theme.of(context).colorScheme.onSurface,
             )),
         title: Text(AppLocalizations.of(context)!.options),
         centerTitle: true,
@@ -207,7 +212,7 @@ class _OptionScreenState extends State<OptionScreen> {
             trailing: SizedBox(
               width: 24,
               child: TextFormField(
-                key: Key(_initialTime.toString()),
+                key: Key(_bonusTime.toString()),
                 initialValue: _initialTime.toString(),
                 onChanged: (value) =>
                     _saveTimerOption(value, _bonusTime.toString()),
@@ -224,7 +229,7 @@ class _OptionScreenState extends State<OptionScreen> {
             trailing: SizedBox(
               width: 24,
               child: TextFormField(
-                key: Key(_bonusTime.toString()),
+                key: Key(_initialTime.toString()),
                 initialValue: _bonusTime.toString(),
                 onChanged: (value) =>
                     _saveTimerOption(_initialTime.toString(), value),
@@ -238,13 +243,16 @@ class _OptionScreenState extends State<OptionScreen> {
           ),
           const Divider(),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              Core.showToast(mounted, context,
+                  AppLocalizations.of(context)!.underConstruction);
+            },
             child: Ink(
               color: Theme.of(context).scaffoldBackgroundColor,
               child: ListTile(
                   title: Text(AppLocalizations.of(context)!.feedback),
                   trailing: Iconify(Ci.chevron_right,
-                      color: Theme.of(context).colorScheme.onBackground)),
+                      color: Theme.of(context).colorScheme.onSurface)),
             ),
           ),
           ListTile(
@@ -252,7 +260,7 @@ class _OptionScreenState extends State<OptionScreen> {
             trailing: DropdownButton(
               icon: Iconify(
                 Ci.chevron_down,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               underline: const SizedBox(),
               value: _selectedLocale,

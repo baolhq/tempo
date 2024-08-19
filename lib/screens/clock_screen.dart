@@ -81,7 +81,10 @@ class _ClockScreenState extends State<ClockScreen> {
         }
       }
     } else {
+      debugPrint("Time out!!");
       _timer.cancel();
+      _isClockPaused = true;
+      _playerTurn = -1;
     }
   }
 
@@ -224,7 +227,7 @@ class _ClockScreenState extends State<ClockScreen> {
               y: screenH / 2 - buttonRadius,
               icon: Iconify(
                 Ci.settings,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               isClockPaused: _isClockPaused,
               callback: () => _navigate(const OptionScreen())),
@@ -233,7 +236,7 @@ class _ClockScreenState extends State<ClockScreen> {
               y: screenH / 2 - buttonRadius,
               icon: Iconify(
                 _isClockPaused ? Ci.redo : Ci.pause_circle_outline,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               isClockPaused: _isClockPaused,
               isPauseButton: true,
@@ -243,7 +246,7 @@ class _ClockScreenState extends State<ClockScreen> {
               y: screenH / 2 - buttonRadius,
               icon: Iconify(
                 Ci.color,
-                color: Theme.of(context).colorScheme.onBackground,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
               isClockPaused: _isClockPaused,
               callback: () => _navigate(const ThemePickerScreen()))

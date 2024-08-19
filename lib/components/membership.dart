@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ci.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tempo/utils/core.dart';
 
 class Membership extends StatelessWidget {
   const Membership({super.key});
@@ -11,7 +12,10 @@ class Membership extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: InkWell(
-        onTap: () {},
+        onTap: () {
+          Core.showToast(
+              true, context, AppLocalizations.of(context)!.underConstruction);
+        },
         borderRadius: BorderRadius.circular(16),
         child: Ink(
           decoration: BoxDecoration(
@@ -25,7 +29,7 @@ class Membership extends StatelessWidget {
                     child: Iconify(
                   Ci.sketch,
                   size: 32,
-                  color: Theme.of(context).colorScheme.onBackground,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ))),
             title: Text(AppLocalizations.of(context)!.becomeAMember),
             subtitle: Text(AppLocalizations.of(context)!.memberSubtitle),

@@ -1,15 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:iconify_flutter/iconify_flutter.dart';
 import 'package:iconify_flutter/icons/ci.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tempo/models/palette.dart';
+import 'package:tempo/utils/core.dart';
 import 'package:tempo/utils/prefs.dart';
 import 'package:tempo/utils/themes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:math' as math;
 
 class ThemePickerScreen extends StatefulWidget {
@@ -22,6 +26,10 @@ class ThemePickerScreen extends StatefulWidget {
 class _ThemePickerScreenState extends State<ThemePickerScreen> {
   var _palette = Themes.blackPink;
   SharedPreferences? _prefs;
+
+  final adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/1033173712'
+      : 'ca-app-pub-3940256099942544/4411468910';
 
   @override
   void initState() {
@@ -77,6 +85,7 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).dividerColor),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(topLeftRadius),
               topRight: Radius.circular(topRightRadius),
@@ -147,7 +156,7 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
                             shape: BoxShape.circle),
                         child: Iconify(
                           Ci.check,
-                          color: Theme.of(context).colorScheme.onBackground,
+                          color: Theme.of(context).colorScheme.onSurface,
                         )))
             ]),
           ),
@@ -162,6 +171,7 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () async {
+          _loadAd();
           await _savePalette();
         },
         borderRadius: BorderRadius.circular(16),
@@ -184,6 +194,27 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
     );
   }
 
+  void _loadAd() {
+    InterstitialAd.load(
+        adUnitId: adUnitId,
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (ad) {
+            debugPrint('$ad loaded.');
+
+            ad.fullScreenContentCallback =
+                FullScreenContentCallback(onAdDismissedFullScreenContent: (_) {
+              Core.showToast(
+                  mounted, context, AppLocalizations.of(context)!.themeApplied);
+            });
+            ad.show();
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            debugPrint('InterstitialAd failed to load: $error');
+          },
+        ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,7 +223,7 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
           onPressed: () => Navigator.of(context).pop(),
           icon: Iconify(
             Ci.chevron_left,
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         title: Text(
@@ -246,70 +277,6 @@ class _ThemePickerScreenState extends State<ThemePickerScreen> {
               _buildThemeTile(Themes.coralSky),
             ],
           ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: GestureDetector(
-                onTap: () {},
-                child: SizedBox(
-                  height: 64,
-                  width: 180,
-                  child: Column(
-                    children: [
-                      Expanded(
-                          child: Container(
-                        decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(16),
-                                topRight: Radius.circular(16)),
-                            gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFF8E7AB5),
-                                  Color(0xFFEEA5A6)
-                                ])),
-                      )),
-                      Expanded(
-                          child: Container(
-                        decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(16),
-                                bottomRight: Radius.circular(16)),
-                            gradient: LinearGradient(
-                                begin: Alignment.bottomRight,
-                                end: Alignment.topLeft,
-                                colors: [
-                                  Color(0xFFEC8F5E),
-                                  Color(0xFFF3B664)
-                                ])),
-                      ))
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            InkWell(
-              onTap: () {},
-              borderRadius: BorderRadius.circular(16),
-              child: Ink(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  color: _palette.topBgColor,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Iconify(
-                    Ci.sketch,
-                    color: _palette.topTextColor,
-                  ),
-                ),
-              ),
-            )
-          ],
         ),
         Expanded(
           child: Stack(

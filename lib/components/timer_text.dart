@@ -18,7 +18,7 @@ class TimerText extends StatelessWidget {
       style: TextStyle(
           fontSize: 64,
           color: color,
-          fontFamily: GoogleFonts.poppins().fontFamily),
+          fontFamily: GoogleFonts.jetBrainsMono().fontFamily),
     );
   }
 }

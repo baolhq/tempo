@@ -11,5 +11,7 @@
   "becomeAMember": "Become a member",
   "memberSubtitle": "Remove ads, get your exclusive features now!",
   "initialTimer": "Initial timer (minutes)",
-  "bonusTime": "Bonus time (seconds)"
+  "bonusTime": "Bonus time (seconds)",
+  "themeApplied": "Theme applied",
+  "underConstruction": "This feature is under construction"
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class TimerSubText extends StatelessWidget {
   const TimerSubText(
@@ -22,7 +23,10 @@ class TimerSubText extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       child: Text(
         text,
-        style: TextStyle(fontSize: 16, color: color),
+        style: TextStyle(
+            fontSize: 16,
+            color: color,
+            fontFamily: GoogleFonts.jetBrainsMono().fontFamily),
       ),
     );
   }

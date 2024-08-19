@@ -6,7 +6,7 @@ class TimerOption {
 
   @override
   String toString() {
-    return "${initialTime.inMinutes} + ${bonusTime.inMinutes}";
+    return "${initialTime.inMinutes} + ${bonusTime.inSeconds}";
   }
 
   factory TimerOption.fromJson(Map<String, dynamic> json) {
