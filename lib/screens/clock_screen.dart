@@ -32,6 +32,7 @@ class _ClockScreenState extends State<ClockScreen> {
   var _playerTurn = -1;
   late Timer _timer;
   late AudioPlayer _player = AudioPlayer();
+  late AudioPlayer _playerOver = AudioPlayer();
 
   TimerOption _durationTop = TimerOption(
       initialTime: const Duration(minutes: 5),
@@ -57,10 +58,13 @@ class _ClockScreenState extends State<ClockScreen> {
 
     _player = AudioPlayer();
     _player.setReleaseMode(ReleaseMode.stop);
+    _playerOver = AudioPlayer();
+    _player.setReleaseMode(ReleaseMode.loop);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       var prefs = await Prefs.loadPrefs();
       await _player.setSource(AssetSource('audio/pop.wav'));
+      await _playerOver.setSource(AssetSource('audio/beep.wav'));
 
       setState(() {
         _prefs = prefs;
@@ -82,7 +86,7 @@ class _ClockScreenState extends State<ClockScreen> {
     super.dispose();
   }
 
-  void _countDown() {
+  void _countDown() async {
     if (_durationTop.initialTime > Duration.zero &&
         _durationBottom.initialTime > Duration.zero) {
       if (!_isClockPaused) {
@@ -97,15 +101,20 @@ class _ClockScreenState extends State<ClockScreen> {
         }
       }
     } else {
-      debugPrint("Time out!!");
       _timer.cancel();
       _isClockPaused = true;
       _playerTurn = -1;
+      await _playerOver.resume();
     }
   }
 
   void _tapperClicked(bool isShowText, bool isTop) async {
+    if (_durationTop.initialTime == Duration.zero &&
+        _durationBottom.initialTime == Duration.zero) {
+      return;
+    }
     await _player.resume();
+
     if (isShowText || !_isClockPaused) {
       if (!_timer.isActive) {
         setState(() {
@@ -171,14 +180,14 @@ class _ClockScreenState extends State<ClockScreen> {
     }
   }
 
-  void _resetTimer() {
+  void _resetTimer() async {
     setState(() {
       _isClockResetted = true;
       _isClockPaused = true;
       _playerTurn = -1;
     });
     _loadTimerOption();
-
+    await _playerOver.stop();
     _timer.cancel();
   }
 
