@@ -11,7 +11,7 @@ import 'package:tempo/components/clock_tapper.dart';
 import 'package:tempo/models/palette.dart';
 import 'package:tempo/models/timer_option.dart';
 import 'package:tempo/screens/option_screen.dart';
-
+import 'package:audioplayers/audioplayers.dart';
 import 'package:tempo/screens/theme_picker_screen.dart';
 import 'package:tempo/utils/prefs.dart';
 import 'package:tempo/utils/themes.dart';
@@ -31,12 +31,23 @@ class _ClockScreenState extends State<ClockScreen> {
   var _isClockPaused = true;
   var _playerTurn = -1;
   late Timer _timer;
+  late AudioPlayer _player = AudioPlayer();
+
   TimerOption _durationTop = TimerOption(
       initialTime: const Duration(minutes: 5),
       bonusTime: const Duration(seconds: 0));
   TimerOption _durationBottom = TimerOption(
       initialTime: const Duration(minutes: 5),
       bonusTime: const Duration(seconds: 0));
+
+  // Holding original timer settings
+  TimerOption _durationTopOrg = TimerOption(
+      initialTime: const Duration(minutes: 5),
+      bonusTime: const Duration(seconds: 0));
+  TimerOption _durationBottomOrg = TimerOption(
+      initialTime: const Duration(minutes: 5),
+      bonusTime: const Duration(seconds: 0));
+
   SharedPreferences? _prefs;
 
   @override
@@ -44,8 +55,12 @@ class _ClockScreenState extends State<ClockScreen> {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
+    _player = AudioPlayer();
+    _player.setReleaseMode(ReleaseMode.stop);
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       var prefs = await Prefs.loadPrefs();
+      await _player.setSource(AssetSource('audio/pop.wav'));
 
       setState(() {
         _prefs = prefs;
@@ -63,6 +78,7 @@ class _ClockScreenState extends State<ClockScreen> {
   @override
   void dispose() {
     _timer.cancel();
+    _player.dispose();
     super.dispose();
   }
 
@@ -88,7 +104,8 @@ class _ClockScreenState extends State<ClockScreen> {
     }
   }
 
-  void _tapperClicked(bool isShowText, bool isTop) {
+  void _tapperClicked(bool isShowText, bool isTop) async {
+    await _player.resume();
     if (isShowText || !_isClockPaused) {
       if (!_timer.isActive) {
         setState(() {
@@ -100,13 +117,17 @@ class _ClockScreenState extends State<ClockScreen> {
 
       if (isTop) {
         setState(() {
+          if (_playerTurn != -1) {
+            _durationTop.initialTime += _durationTop.bonusTime;
+          }
           _playerTurn = 0;
-          _durationTop.initialTime += _durationTop.bonusTime;
         });
       } else {
         setState(() {
+          if (_playerTurn != -1) {
+            _durationBottom.initialTime += _durationBottom.bonusTime;
+          }
           _playerTurn = 1;
-          _durationBottom.initialTime += _durationBottom.bonusTime;
         });
       }
 
@@ -173,7 +194,13 @@ class _ClockScreenState extends State<ClockScreen> {
         _durationTop = TimerOption(
             initialTime: Duration(minutes: _initialTime),
             bonusTime: Duration(seconds: _bonusTime));
+        _durationTopOrg = TimerOption(
+            initialTime: Duration(minutes: _initialTime),
+            bonusTime: Duration(seconds: _bonusTime));
         _durationBottom = TimerOption(
+            initialTime: Duration(minutes: _initialTime),
+            bonusTime: Duration(seconds: _bonusTime));
+        _durationBottomOrg = TimerOption(
             initialTime: Duration(minutes: _initialTime),
             bonusTime: Duration(seconds: _bonusTime));
       });
@@ -200,7 +227,7 @@ class _ClockScreenState extends State<ClockScreen> {
                 isClockPaused: _isClockPaused,
                 isClockResetted: _isClockResetted,
                 timer: _timer,
-                timerOption: _durationTop.toString(),
+                timerOption: _durationTopOrg.toString(),
                 playerTurn: _playerTurn,
                 isShowText: _playerTurn == -1 || _playerTurn == 1,
                 callback: (isShowText, isTop) =>
@@ -214,7 +241,7 @@ class _ClockScreenState extends State<ClockScreen> {
                 isClockPaused: _isClockPaused,
                 isClockResetted: _isClockResetted,
                 timer: _timer,
-                timerOption: _durationBottom.toString(),
+                timerOption: _durationBottomOrg.toString(),
                 playerTurn: _playerTurn,
                 isShowText: _playerTurn == -1 || _playerTurn == 0,
                 callback: (isShowText, isTop) =>

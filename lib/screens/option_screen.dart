@@ -76,8 +76,6 @@ class _OptionScreenState extends State<OptionScreen> {
     var initialTime = _prefs?.getInt("initialTime");
     var bonusTime = _prefs?.getInt("bonusTime");
 
-    debugPrint("$initialTime --- $bonusTime");
-
     if (initialTime != null && bonusTime != null) {
       setState(() {
         _initialTime = initialTime;
@@ -90,15 +88,13 @@ class _OptionScreenState extends State<OptionScreen> {
     int initialTime;
     int bonusTime;
 
-    if (initialTimeStr.isEmpty || initialTimeStr == '0') {
-      initialTime = 1;
+    if (initialTimeStr.isEmpty) {
+      initialTime = 0;
     } else {
       initialTime = int.parse(initialTimeStr);
     }
 
     if (bonusTimeStr.isEmpty) {
-      bonusTime = 0;
-    } else if (int.parse(bonusTimeStr) >= 60) {
       bonusTime = 0;
     } else {
       bonusTime = int.parse(bonusTimeStr);
@@ -111,6 +107,8 @@ class _OptionScreenState extends State<OptionScreen> {
 
     await _prefs?.setInt("initialTime", initialTime);
     await _prefs?.setInt("bonusTime", bonusTime);
+    await _prefs?.setInt("initialTimeOrg", initialTime);
+    await _prefs?.setInt("bonusTimeOrg", bonusTime);
   }
 
   void _saveLanguage() async {
@@ -211,9 +209,9 @@ class _OptionScreenState extends State<OptionScreen> {
             title: Text(AppLocalizations.of(context)!.initialTimer),
             trailing: SizedBox(
               width: 24,
-              child: TextFormField(
-                key: Key(_bonusTime.toString()),
-                initialValue: _initialTime.toString(),
+              child: TextField(
+                controller: TextEditingController()
+                  ..text = _initialTime.toString(),
                 onChanged: (value) =>
                     _saveTimerOption(value, _bonusTime.toString()),
                 textAlign: TextAlign.end,
@@ -228,9 +226,9 @@ class _OptionScreenState extends State<OptionScreen> {
             title: Text(AppLocalizations.of(context)!.bonusTime),
             trailing: SizedBox(
               width: 24,
-              child: TextFormField(
-                key: Key(_initialTime.toString()),
-                initialValue: _bonusTime.toString(),
+              child: TextField(
+                controller: TextEditingController()
+                  ..text = _bonusTime.toString(),
                 onChanged: (value) =>
                     _saveTimerOption(_initialTime.toString(), value),
                 textAlign: TextAlign.end,

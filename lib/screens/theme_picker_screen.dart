@@ -13,7 +13,6 @@ import 'package:tempo/utils/core.dart';
 import 'package:tempo/utils/prefs.dart';
 import 'package:tempo/utils/themes.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:math' as math;
 
 class ThemePickerScreen extends StatefulWidget {
