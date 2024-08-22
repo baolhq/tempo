@@ -42,7 +42,7 @@ class MyAppState extends State<MyApp> {
         _prefs = prefs;
       });
 
-      _loadLanguague();
+      _loadLanguage();
     });
   }
 
@@ -52,7 +52,7 @@ class MyAppState extends State<MyApp> {
     });
   }
 
-  void _loadLanguague() {
+  void _loadLanguage() {
     var lang = _prefs?.getString("lang");
 
     if (lang != null) {
