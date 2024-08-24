@@ -1,6 +1,6 @@
 # tempo
 
-A modern chess clock with inituative design
+A modern chess clock mobile app with inituative design
 
 ## Features
 
@@ -8,3 +8,9 @@ A modern chess clock with inituative design
 - Multi languages support
 - Custom timer
 - Minimal design
+
+## TODOs
+
+- Premium features
+- Production ads implementation
+- Custom theming
