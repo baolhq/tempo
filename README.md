@@ -13,4 +13,5 @@ A modern chess clock mobile app with inituative design
 
 - Premium features
 - Production ads implementation
+- Theme selection screen redesign
 - Custom themes
